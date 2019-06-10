@@ -16,7 +16,7 @@ from scipy.stats import norm
 from pylab import rcParams
 
 
-# In[154]:
+# In[158]:
 
 
 def mynorm(v):
@@ -82,12 +82,12 @@ def calc_dists(y1, y2):
 
 # ## 1.値の移動に伴う距離の差
 
-# In[155]:
+# In[165]:
 
 
 xs = np.linspace(-5.0, 5.0, 100)
 y1 = norm.pdf(x=xs, loc=0, scale=1)
-
+y1 = y1 / np.sum(y1)
 sl = 100
 shift_vals = np.linspace(-3, 3, sl)
 show_vals = shift_vals[np.linspace(0,sl - 1,5).astype(np.int)]
@@ -97,6 +97,8 @@ rcParams["figure.figsize"] = (15,5)
 plt.plot(xs, y1,color = "r")
 for si, shift_val in enumerate(shift_vals):
     y2 = norm.pdf(x=xs, loc=shift_val, scale=1)
+    y2 = y2 / np.sum(y2)
+
     dist = calc_dists(y1, y2)
     for key in dist.keys():
         if key not in dists.keys():
@@ -120,12 +122,12 @@ plt.show()
 
 # ## 2.分散の変化に伴う差
 
-# In[156]:
+# In[166]:
 
 
 xs = np.linspace(-5.0, 5.0, 100)
 y1 = norm.pdf(x=xs, loc=0, scale=1)
-
+y1 = y1 / np.sum(y1)
 sl = 100
 shift_vals = np.linspace(0.5, 4, sl)
 show_vals = shift_vals[np.linspace(0,sl - 1,5).astype(np.int)]
@@ -135,6 +137,8 @@ rcParams["figure.figsize"] = (15,5)
 plt.plot(xs, y1,color = "r")
 for si, shift_val in enumerate(shift_vals):
     y2 = norm.pdf(x=xs, loc=0, scale=shift_val)
+    y2 = y2 / np.sum(y2)
+
     dist = calc_dists(y1, y2)
     for key in dist.keys():
         if key not in dists.keys():
@@ -158,12 +162,13 @@ plt.show()
 
 # ## 3.ノイズへの頑健さ
 
-# In[157]:
+# In[175]:
 
 
 np.random.seed(100)
 xs = np.linspace(-5.0, 5.0, 100)
 y1 = norm.pdf(x=xs, loc=0, scale=1)
+y1 = y1 / np.sum(y1)
 
 sl = 5
 base_shift_vals = np.linspace(-3, 0, sl)
@@ -173,6 +178,8 @@ rcParams["figure.figsize"] = (15,5)
 plt.plot(xs, y1,color = "r")
 for si, shift_val in enumerate(base_shift_vals):
     y2 = norm.pdf(x=xs, loc=shift_val, scale=1)
+    y2 = y2 / np.sum(y2)
+
     dist = calc_dists(y1, y2)
     for key in dist.keys():
         if key not in base_dists.keys():
@@ -195,6 +202,7 @@ for si, shift_val in enumerate(shift_vals):
     for ni in range(shift_val):
         random_pos = np.random.random_integers(len(xs) - 1)
         y2[random_pos] = np.random.rand()
+    y2 = y2 / np.sum(y2)
     dist = calc_dists(y1, y2)
     for key in dist.keys():
         if key not in dists.keys():
@@ -212,8 +220,13 @@ for ki, key in enumerate(dists.keys()):
     vals = dists[key]
     plt.subplot(2,5,ki + 1)
     plt.plot(shift_vals, vals)
-    for kv in base_dists[key].keys():
-        plt.hlines(base_dists[key][kv],min(shift_vals),max(shift_vals),color = "r")        
+    for ki, kv in enumerate(base_dists[key].keys() ):
+        if ki == (len(base_dists[key].keys()) - 1):
+            plt.hlines(base_dists[key][kv],min(shift_vals),max(shift_vals),color = "r")        
+        else:
+            plt.hlines(base_dists[key][kv],min(shift_vals),max(shift_vals),color = "g")        
+
+
     plt.title(key)
 plt.show()
 
